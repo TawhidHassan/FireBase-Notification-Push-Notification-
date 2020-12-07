@@ -1,5 +1,6 @@
 package com.example.firebasenotificationpushnotification;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -10,20 +11,33 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.myhexaville.smartimagepicker.ImagePicker;
 import com.myhexaville.smartimagepicker.OnImagePickedListener;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -48,7 +62,6 @@ public class RegistrationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
-
         registration = findViewById(R.id.register);
         imageView = findViewById(R.id.image);
 
@@ -60,7 +73,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progress_bar);
 
-        //for permission(multiple permission)
+
         final String[] PERMISSIONS = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -79,7 +92,6 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        //image pick
         imagePicker = new ImagePicker(this, /* activity non null*/
                 null, /* fragment nullable*/
                 new OnImagePickedListener() {
@@ -87,16 +99,19 @@ public class RegistrationActivity extends AppCompatActivity {
                     public void onImagePicked(Uri imageUri) {
                         UCrop.of(imageUri, getTempUri())
                                 .withAspectRatio(1, 1)
+                                .withOptions(new UCrop.Options())
                                 .start(RegistrationActivity.this);
                     }
                 });
-        //image pick
+
 
 
 
     }
 
-    //image pick
+
+
+
     private Uri getTempUri(){
         String dri = Environment.getExternalStorageDirectory()+ File.separator+"Temp";
         File dirFile = new File(dri);
@@ -113,7 +128,6 @@ public class RegistrationActivity extends AppCompatActivity {
         return Uri.fromFile(tempFile);
     }
 
-    //for permission
     public static boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
             for (String permission : permissions) {
@@ -125,7 +139,6 @@ public class RegistrationActivity extends AppCompatActivity {
         return true;
     }
 
-    //if user deny the permission
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissionsList[], int[] grantResults) {
         switch (requestCode) {
@@ -148,10 +161,7 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         }
     }
-    //for permission
 
-
-    //image pick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
