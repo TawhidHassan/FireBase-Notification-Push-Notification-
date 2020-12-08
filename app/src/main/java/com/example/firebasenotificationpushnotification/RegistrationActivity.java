@@ -104,14 +104,115 @@ public class RegistrationActivity extends AppCompatActivity {
                     }
                 });
 
+        registration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(TextUtils.isEmpty(email.getText().toString())){
+                    Toast.makeText(RegistrationActivity.this, "Please Enter Email Address", Toast.LENGTH_SHORT).show();
+                }
+                else if(!Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()){
+                    Toast.makeText(RegistrationActivity.this, "Please Enter valid Email Address", Toast.LENGTH_SHORT).show();
+                }
+                else  if(TextUtils.isEmpty(password.getText().toString())){
+                    Toast.makeText(RegistrationActivity.this, "Please Enter Password", Toast.LENGTH_SHORT).show();
+                }
+                else if(password.getText().toString().length()<6){
+                    Toast.makeText(RegistrationActivity.this, "Please Enter 6 or more than digit password", Toast.LENGTH_SHORT).show();
+                }
+                else  if(TextUtils.isEmpty(name.getText().toString())){
+                    Toast.makeText(RegistrationActivity.this, "Please Enter Name", Toast.LENGTH_SHORT).show();
+                }
+                else if(uri == null){
+                    Toast.makeText(RegistrationActivity.this, "Select Image", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    register();
+                }
+            }
+        });
 
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RegistrationActivity.this,LoginActivity.class));
+                finish();
+            }
+        });
+
+    }
+
+    private void register() {
+        progressBar.setVisibility(View.VISIBLE);
+        FirebaseAuth.getInstance().
+                createUserWithEmailAndPassword(email.getText().toString(),password.getText().toString())
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        upload();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(RegistrationActivity.this, "Failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
     }
 
+    void upload(){
+        final StorageReference riversRef = FirebaseStorage.getInstance().getReference().child("Temp/"+System.currentTimeMillis()+".png");
+        riversRef.putFile(uri).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                progressBar.setVisibility(View.GONE);
+                Log.i("dscgjdshv", "onFailure: "+exception.getMessage());
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        insertUserInfo(uri);
+                    }
+                });
 
+            }
+        });
+    }
 
+    private void insertUserInfo(Uri uri) {
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("email",email.getText().toString());
+        map.put("name",name.getText().toString());
+        map.put("password",password.getText().toString());
+        map.put("image",uri.toString());
 
+        FirebaseDatabase.getInstance().getReference()
+                .child("User")
+                .child(FirebaseAuth.getInstance().getUid())
+                .setValue(map)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(RegistrationActivity.this, "Registration successful.", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(RegistrationActivity.this,DashboaredActivity.class));
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressBar.setVisibility(View.GONE);
+                        Log.i("dscgjdshv", "onFailure: "+e.getMessage());
+                    }
+                });
+    }
+
+    //getImage url
     private Uri getTempUri(){
         String dri = Environment.getExternalStorageDirectory()+ File.separator+"Temp";
         File dirFile = new File(dri);
@@ -128,6 +229,7 @@ public class RegistrationActivity extends AppCompatActivity {
         return Uri.fromFile(tempFile);
     }
 
+    //take user permission
     public static boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
             for (String permission : permissions) {
@@ -162,6 +264,7 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    //goto phone gallary
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
