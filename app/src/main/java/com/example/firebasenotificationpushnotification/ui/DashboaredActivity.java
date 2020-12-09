@@ -1,8 +1,10 @@
-package com.example.firebasenotificationpushnotification;
+package com.example.firebasenotificationpushnotification.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.firebasenotificationpushnotification.R;
 
 public class DashboaredActivity extends AppCompatActivity {
 
