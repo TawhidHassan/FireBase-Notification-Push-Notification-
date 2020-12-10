@@ -96,7 +96,7 @@ public class SendNotificationActivity extends AppCompatActivity {
                 map.put("id",id);
 
                 reference.child(FirebaseAuth.getInstance().getUid())
-                        .child("cloudFunction")
+                        .child("CloudFuncation")
                         .push()
                         .setValue(map)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
