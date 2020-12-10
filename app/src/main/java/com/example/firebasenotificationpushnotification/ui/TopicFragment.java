@@ -3,12 +3,18 @@ package com.example.firebasenotificationpushnotification.ui;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.firebasenotificationpushnotification.R;
+import com.example.firebasenotificationpushnotification.adapter.TopicAdapter;
+import com.example.firebasenotificationpushnotification.model.Topic;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,50 +23,59 @@ import com.example.firebasenotificationpushnotification.R;
  */
 public class TopicFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private View view;
+    private RecyclerView recyclerView;
+    private TopicAdapter adapter;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public TopicFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TopicFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static TopicFragment newInstance(String param1, String param2) {
-        TopicFragment fragment = new TopicFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_topic, container, false);
+        view = inflater.inflate(R.layout.fragment_topic, container, false);
+
+        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FirebaseRecyclerOptions<Topic> options =
+                new FirebaseRecyclerOptions.Builder<Topic>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference()
+                                .child("Topic"), Topic.class)
+                        .build();
+
+
+        adapter = new TopicAdapter(options);
+        recyclerView.setAdapter(adapter);
+
+
+        return view;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+
+//      "data": {
+//        "title": "forground Check this Mobile (title)",
+//        "body": "forground Rich Notification testing (body)"
+//        "click_action":"com.codeinger.notificationdemo.MyClickAction",
+//        "image": "https://camo.githubusercontent.com/f8ea5eab7494f955e90f60abc1d13f2ce2c2e540/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f323037383234352f3235393331332f35653833313336322d386362612d313165322d383435332d6536626439353663383961342e706e67"
+//      }
+
+//     https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages
+
+
 }
