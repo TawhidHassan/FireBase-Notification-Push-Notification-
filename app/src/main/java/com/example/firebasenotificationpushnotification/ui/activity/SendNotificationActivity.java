@@ -1,9 +1,10 @@
-package com.example.firebasenotificationpushnotification.ui;
+package com.example.firebasenotificationpushnotification.ui.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -13,16 +14,30 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.firebasenotificationpushnotification.R;
+import com.example.firebasenotificationpushnotification.model.NotificationReq;
+import com.example.firebasenotificationpushnotification.model.NotificationResponce;
+import com.example.firebasenotificationpushnotification.network.NotificationRequest;
+import com.example.firebasenotificationpushnotification.network.RetrofitClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.ViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
+import static com.example.firebasenotificationpushnotification.network.Constants.BASE_URL;
 
 public class SendNotificationActivity extends AppCompatActivity {
     private EditText title,description;
@@ -77,7 +92,8 @@ public class SendNotificationActivity extends AppCompatActivity {
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                progress_bar.setVisibility(View.GONE);
+                                sentByRest();
+
                             }
                         });
             }
@@ -123,4 +139,55 @@ public class SendNotificationActivity extends AppCompatActivity {
         });
 
     }
+
+    private void sentByRest() {
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("User")
+                .child(id)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        NotificationReq req = new NotificationReq(
+                                dataSnapshot.child("token").getValue().toString(),
+                                new NotificationReq.Notification(title.getText().toString(),
+                                        description.getText().toString()
+                                )
+                        );
+
+                        RetrofitClient.getRetrofit(BASE_URL)
+                                .create(NotificationRequest.class)
+                                .sent(req)
+                                .enqueue(new Callback<NotificationResponce>() {
+                                    @Override
+                                    public void onResponse(Call<NotificationResponce> call, Response<NotificationResponce> response) {
+                                        if(response.code()==200){
+                                            Log.i("hfbvjes", "ok: ");
+                                            Toast.makeText(SendNotificationActivity.this, "Sent", Toast.LENGTH_SHORT).show();
+                                        }else {
+                                            Toast.makeText(SendNotificationActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+                                            Log.i("hfbvjes", response.toString());
+                                        }
+                                        progress_bar.setVisibility(View.GONE);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<NotificationResponce> call, Throwable t) {
+                                        progress_bar.setVisibility(View.GONE);
+                                        Log.i("hfbvjes", "onFailure: "+t.toString());
+                                        Toast.makeText(SendNotificationActivity.this, "Filed", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        progress_bar.setVisibility(View.GONE);
+                    }
+                });
+
+
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.firebasenotificationpushnotification.ui;
+package com.example.firebasenotificationpushnotification.ui.fragment;
 
 import android.os.Bundle;
 

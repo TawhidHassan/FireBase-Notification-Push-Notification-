@@ -1,4 +1,4 @@
-package com.example.firebasenotificationpushnotification.ui;
+package com.example.firebasenotificationpushnotification.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 

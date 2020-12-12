@@ -6,8 +6,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.example.firebasenotificationpushnotification.CloudFunctionFragment;
-import com.example.firebasenotificationpushnotification.RestApiFragment;
+import com.example.firebasenotificationpushnotification.ui.fragment.CloudFunctionFragment;
+import com.example.firebasenotificationpushnotification.ui.fragment.RestApiFragment;
 
 public class TabAdapter extends FragmentPagerAdapter {
     public TabAdapter(@NonNull FragmentManager fm) {

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.firebasenotificationpushnotification.R;
 import com.example.firebasenotificationpushnotification.model.User;
-import com.example.firebasenotificationpushnotification.ui.SendNotificationActivity;
+import com.example.firebasenotificationpushnotification.ui.activity.SendNotificationActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.squareup.picasso.Picasso;

@@ -1,4 +1,4 @@
-package com.example.firebasenotificationpushnotification.ui;
+package com.example.firebasenotificationpushnotification.ui.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.firebasenotificationpushnotification.R;
 import com.example.firebasenotificationpushnotification.model.User;
+import com.example.firebasenotificationpushnotification.ui.activity.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;

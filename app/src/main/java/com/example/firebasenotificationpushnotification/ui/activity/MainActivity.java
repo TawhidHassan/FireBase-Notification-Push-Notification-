@@ -1,4 +1,4 @@
-package com.example.firebasenotificationpushnotification.ui;
+package com.example.firebasenotificationpushnotification.ui.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +10,10 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.firebasenotificationpushnotification.R;
+import com.example.firebasenotificationpushnotification.ui.fragment.AllUserFragment;
+import com.example.firebasenotificationpushnotification.ui.fragment.NotificationFragment;
+import com.example.firebasenotificationpushnotification.ui.fragment.ProfileFragment;
+import com.example.firebasenotificationpushnotification.ui.fragment.TopicFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

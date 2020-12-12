@@ -1,4 +1,4 @@
-package com.example.firebasenotificationpushnotification.ui;
+package com.example.firebasenotificationpushnotification.ui.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,11 +23,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.firebasenotificationpushnotification.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -184,30 +188,46 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void insertUserInfo(Uri uri) {
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("email",email.getText().toString());
-        map.put("name",name.getText().toString());
-        map.put("password",password.getText().toString());
-        map.put("image",uri.toString());
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("sdfkjbvdf", "getInstanceId failed", task.getException());
+                            return;
+                        }
 
-        FirebaseDatabase.getInstance().getReference()
-                .child("User")
-                .child(FirebaseAuth.getInstance().getUid())
-                .setValue(map)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(RegistrationActivity.this, "Registration successful.", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(RegistrationActivity.this,DashboaredActivity.class));
-                        finish();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        progressBar.setVisibility(View.GONE);
-                        Log.i("dscgjdshv", "onFailure: "+e.getMessage());
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        HashMap<String,Object> map = new HashMap<>();
+                        map.put("email",email.getText().toString());
+                        map.put("name",name.getText().toString());
+                        map.put("password",password.getText().toString());
+                        map.put("image",uri.toString());
+                        map.put("token",token);
+
+                        FirebaseDatabase.getInstance().getReference()
+                                .child("User")
+                                .child(FirebaseAuth.getInstance().getUid())
+                                .setValue(map)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(RegistrationActivity.this, "Registration successful.", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(RegistrationActivity.this,MainActivity.class));
+                                        finish();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        progressBar.setVisibility(View.GONE);
+                                        Log.i("dscgjdshv", "onFailure: "+e.getMessage());
+                                    }
+                                });
+
                     }
                 });
     }
