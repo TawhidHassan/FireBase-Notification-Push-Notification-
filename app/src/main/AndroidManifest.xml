@@ -18,7 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FireBaseNotificationPushNotification"
         tools:targetApi="m">
-        <activity android:name=".ui.activity.SendNotificationActivity"></activity>
+        <activity android:name=".ui.activity.SendNotificationActivity">
+            <intent-filter>
+                <action android:name="my_clcik"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".ui.activity.DashboaredActivity" />
         <activity android:name=".ui.activity.SplashActivity">
             <intent-filter>
