@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".utils.App"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,6 +19,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FireBaseNotificationPushNotification"
         tools:targetApi="m">
+
+
+        <service
+            android:name=".service.MyFirebaseMessageingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
         <activity android:name=".ui.activity.SendNotificationActivity">
             <intent-filter>
                 <action android:name="my_clcik"/>
