@@ -158,10 +158,24 @@ public class SendNotificationActivity extends AppCompatActivity {
                         //to
                         //Notification
                         //data
+//                        NotificationReq req = new NotificationReq(
+//                                dataSnapshot.child("token").getValue().toString(),
+//                                new NotificationReq.Notification(title.getText().toString(), description.getText().toString(), "https://embedsocial.com/wp-content/uploads/2020/02/latest-instagram-api-changes.jpg", "my_clcik"),
+//                                new NotificationReq.Data_("sifat", "hassan","notification sifat")
+//                        );
+
+
+                        //to
+                        //data
+                        //for background
                         NotificationReq req = new NotificationReq(
                                 dataSnapshot.child("token").getValue().toString(),
-                                new NotificationReq.Notification(title.getText().toString(), description.getText().toString(), "https://embedsocial.com/wp-content/uploads/2020/02/latest-instagram-api-changes.jpg", "my_clcik"),
-                                new NotificationReq.Data_("sifat", "hassan")
+                                new NotificationReq.Data_("value 1","value 2",
+                                        title.getText().toString(),
+                                        description.getText().toString(),
+                                        "https://image.shutterstock.com/image-photo/kiev-ukraine-may-14-2016-260nw-420838831.jpg",
+                                        "my_click",
+                                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in")
                         );
 
                         RetrofitClient.getRetrofit(BASE_URL)
