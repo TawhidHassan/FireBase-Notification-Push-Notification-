@@ -79,6 +79,30 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("User")
+                .child(FirebaseAuth.getInstance().getUid())
+                .child("topic")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String s = "";
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                            s = s+snapshot.child("title").getValue().toString()+",";
+                        }
+
+                        topic.setText("Topic : "+s);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
