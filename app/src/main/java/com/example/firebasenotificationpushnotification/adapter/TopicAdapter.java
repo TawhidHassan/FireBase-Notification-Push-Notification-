@@ -7,12 +7,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.firebasenotificationpushnotification.R;
 import com.example.firebasenotificationpushnotification.model.Topic;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.HashMap;
 
 public class TopicAdapter extends FirebaseRecyclerAdapter<Topic, TopicAdapter.TopicViewHolder> {
 
@@ -27,10 +39,83 @@ public class TopicAdapter extends FirebaseRecyclerAdapter<Topic, TopicAdapter.To
         holder.subscribe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(((String)holder.subscribe.getTag()).equals("unsbscribe")){
+                    subscribe(holder.subscribe,model.getTitle());
+                }
+                else {
+                    unSubscribe(holder.subscribe,model.getTitle());
+                }
             }
         });
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("User")
+                .child(FirebaseAuth.getInstance().getUid())
+                .child("topic")
+                .orderByChild("title")
+                .equalTo(model.getTitle())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.getChildrenCount()>0)
+                            {
+                                holder.subscribe.setTag(snapshot.getChildren().iterator().next().getKey());
+                                holder.subscribe.setColorFilter(ContextCompat.getColor(holder.subscribe.getContext(),R.color.colorPrimary));
+                            }else {
+                                holder.subscribe.setTag("unsbscribe");
+                            }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
+
+
+
+    private void subscribe(ImageView subscribe, String title) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                .child("User")
+                .child(FirebaseAuth.getInstance().getUid())
+                .child("topic")
+                .push();
+
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("title",title);
+
+        reference.setValue(map)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        subscribe.setColorFilter(ContextCompat.getColor(subscribe.getContext(),R.color.colorPrimary));
+                        FirebaseMessaging.getInstance().subscribeToTopic(title);
+                        subscribe.setTag(reference.getKey());
+                    }
+                });
+    }
+
+    private void unSubscribe(ImageView subscribe, String title) {
+        FirebaseDatabase.getInstance().getReference()
+                .child("User")
+                .child(FirebaseAuth.getInstance().getUid())
+                .child("topic")
+                .child((String)subscribe.getTag())
+                .removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        subscribe.setTag("unsbscribe");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic(title);
+                        subscribe.setColorFilter(ContextCompat.getColor(subscribe.getContext(),R.color.gray));
+                    }
+                });
+    }
+
+
+
+
 
     @NonNull
     @Override
